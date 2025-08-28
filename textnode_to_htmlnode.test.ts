@@ -1,6 +1,6 @@
 import { expect, test, describe } from "bun:test";
 import { TextNode, TextType } from "./textnode";
-import { textNodeToHTMLNode } from "./index";
+import { textNodeToHTMLNode } from "./helpers";
 
 // The HTMLNode subclasses are used under the hood; we only assert on shape/output
 
