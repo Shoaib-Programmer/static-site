@@ -14,7 +14,7 @@ export class TextNode {
     public url: string | undefined = undefined
   ) {
     if (!!this.url !== (this.textType === TextType.LINK)) {
-      throw new Error("URL and LINK textType must be used together");
+      throw new Error("URL and LINK must be used together");
     }
     if (!Object.values(TextType).includes(this.textType)) {
       throw new Error("textType is not included in the TextType enum");

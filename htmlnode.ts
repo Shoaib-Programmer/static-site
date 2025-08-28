@@ -4,7 +4,11 @@ export class HTMLNode {
     public value: string | undefined,
     public children: HTMLNode[] | undefined,
     public props: Record<string, string> | undefined
-  ) {}
+  ) {
+    if (!!this.tag !== (!!this.props)) {
+      throw new Error("tag and props must be used together");
+    }
+  }
 
   public toHTML() {
     throw new Error("This method is not implemented");
