@@ -77,3 +77,23 @@ export const splitNodesDelimiter = (
 
   return nodes;
 };
+
+export const extractMarkdownImages = (text: string): [string, string][] => {
+  const regex = /!\[([^\]]*)\]\(((?:[^()]+|\([^()]*\))+?)\)/g;
+  const results: [string, string][] = [];
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(text)) !== null) {
+    results.push([match[1] as string, match[2] as string]);
+  }
+  return results;
+};
+
+export const extractMarkdownLinks = (text: string): [string, string][] => {
+  const regex = /(?<!!)\[([^\]]+)\]\(((?:[^()]+|\([^()]*\))+?)\)/g;
+  const results: [string, string][] = [];
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(text)) !== null) {
+    results.push([match[1] as string, match[2] as string]);
+  }
+  return results;
+};
