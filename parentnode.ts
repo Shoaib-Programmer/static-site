@@ -4,7 +4,7 @@ export class ParentNode extends HTMLNode {
   constructor(
     public tag: string,
     public children: HTMLNode[],
-    public props: Record<string, string> | undefined
+    public props: Record<string, string> | undefined = undefined
   ) {
     super(tag, undefined, children, props);
   }

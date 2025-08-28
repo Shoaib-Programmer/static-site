@@ -20,12 +20,17 @@ describe("TextNode", () => {
   test("Edge case: throws if LINK type without URL", () => {
     expect(() => {
       new TextNode("Personal website", TextType.LINK);
-    }).toThrow("URL and LINK must be used together");
+    }).toThrow("URL must be provided if and only if textType is LINK or IMAGE");
   });
-  test("Edge case: throws if URL provided but not LINK type", () => {
+  test("Edge case: throws if IMAGE type without URL", () => {
+    expect(() => {
+      new TextNode("An image", TextType.IMAGE);
+    }).toThrow("URL must be provided if and only if textType is LINK or IMAGE");
+  });
+  test("Edge case: throws if URL provided but not LINK or IMAGE type", () => {
     expect(() => {
       new TextNode("Some text", TextType.BOLD, "https://example.com");
-    }).toThrow("URL and LINK must be used together");
+    }).toThrow("URL must be provided if and only if textType is LINK or IMAGE");
   });
   test("textType is not included in the enum", () => {
     expect(() => {

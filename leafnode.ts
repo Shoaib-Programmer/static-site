@@ -2,7 +2,7 @@ import { HTMLNode } from "./htmlnode";
 
 export class LeafNode extends HTMLNode {
   constructor(
-    public tag: string,
+    public tag: string | undefined,
     public value: string,
     public props: Record<string, string> | undefined
   ) {

@@ -13,8 +13,8 @@ export class TextNode {
     public textType: TextType,
     public url: string | undefined = undefined
   ) {
-    if (!!this.url !== (this.textType === TextType.LINK)) {
-      throw new Error("URL and LINK must be used together");
+    if (!!this.url !== (this.textType === TextType.LINK || this.textType === TextType.IMAGE)) {
+      throw new Error("URL must be provided if and only if textType is LINK or IMAGE");
     }
     if (!Object.values(TextType).includes(this.textType)) {
       throw new Error("textType is not included in the TextType enum");
