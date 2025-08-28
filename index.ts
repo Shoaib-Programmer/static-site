@@ -35,6 +35,59 @@ export const textNodeToHTMLNode = (textNode: TextNode) => {
   }
 };
 
+export const splitNodesDelimiter = (
+  oldNodes: TextNode[],
+  delimiter: string,
+  textType: TextType
+): TextNode[] => {
+  const nodes: TextNode[] = [];
+
+  for (const node of oldNodes) {
+    // Only split nodes of type TEXT; leave others untouched
+    if (node.textType !== TextType.TEXT) {
+      nodes.push(node);
+      continue;
+    }
+
+    // Escape delimiter for regex if needed
+    const escapedDelimiter = delimiter.replace(
+      /[-\/\\^$*+?.()|[\]{}]/g,
+      "\\$&"
+    );
+    // Match: delimiter (not empty) delimiter, non-greedy
+    const regex = new RegExp(
+      `${escapedDelimiter}([^${escapedDelimiter}]+?)${escapedDelimiter}`,
+      "g"
+    );
+
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = regex.exec(node.text)) !== null) {
+      // Add text before the delimiter
+      if (match.index > lastIndex) {
+        const before = node.text.slice(lastIndex, match.index);
+        if (before.length > 0) {
+          nodes.push(new TextNode(before, TextType.TEXT));
+        }
+      }
+      // Add the delimited text
+      nodes.push(new TextNode(match[1] as string, textType));
+      lastIndex = regex.lastIndex;
+    }
+
+    // Add any remaining text after the last delimiter
+    if (lastIndex < node.text.length) {
+      const after = node.text.slice(lastIndex);
+      if (after.length > 0) {
+        nodes.push(new TextNode(after, TextType.TEXT));
+      }
+    }
+  }
+
+  return nodes;
+};
+
 if (import.meta.main) {
   main();
 }
