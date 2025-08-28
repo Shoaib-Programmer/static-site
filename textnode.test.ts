@@ -5,7 +5,7 @@ describe("TextNode", () => {
   test("equals should confirm two Nodes equal when they are the same", () => {
     const node = new TextNode("This is a text node", TextType.BOLD);
     const node2 = new TextNode("This is a text node", TextType.BOLD);
-    expect(node.equals(node2));
+    expect(node.equals(node2)).toBe(true);
   });
   test("toString formats properly", () => {
     const node = new TextNode(
@@ -16,5 +16,21 @@ describe("TextNode", () => {
     expect(node.toString()).toBe(
       "TextNode(Personal website, link, https://portfolio-seven-gamma-97.vercel.app)"
     );
+  });
+  test("Edge case: throws if LINK type without URL", () => {
+    expect(() => {
+      new TextNode("Personal website", TextType.LINK);
+    }).toThrow("URL and LINK textType must be used together");
+  });
+  test("Edge case: throws if URL provided but not LINK type", () => {
+    expect(() => {
+      new TextNode("Some text", TextType.BOLD, "https://example.com");
+    }).toThrow("URL and LINK textType must be used together");
+  });
+  test("textType is not included in the enum", () => {
+    expect(() => {
+      // @ts-ignore
+      new TextNode("Some text", "dance");
+    }).toThrow("textType is not included in the TextType enum");
   });
 });
