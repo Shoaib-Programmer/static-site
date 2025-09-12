@@ -15,17 +15,19 @@ export const blockToBlockType = (text: string): BlockType => {
         return BlockType.CODE;
     }
 
-    const lines = text.split('\n');
-    if (lines.every(line => line.startsWith(">"))) {
+    const lines = text.split("\n");
+    if (lines.every((line) => line.startsWith(">"))) {
         return BlockType.QUOTE;
     }
-    if (lines.every(line => line.startsWith("- "))) {
+    if (lines.every((line) => line.startsWith("- "))) {
         return BlockType.UNORDERED_LIST;
     }
-    if (lines.every((line, index) => {
-        const match = line.match(/^(\d+)\.\s+/);
-        return match && parseInt(match[1]!) === index + 1;
-    })) {
+    if (
+        lines.every((line, index) => {
+            const match = line.match(/^(\d+)\.\s+/);
+            return match && parseInt(match[1]!) === index + 1;
+        })
+    ) {
         return BlockType.ORDERED_LIST;
     }
 

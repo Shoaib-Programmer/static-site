@@ -74,6 +74,8 @@ describe("blockToBlockType", () => {
     });
 
     test("falls back to paragraph for plain text", () => {
-        expect(blockToBlockType("Just some text here.")).toBe(BlockType.PARAGRAPH);
+        expect(blockToBlockType("Just some text here.")).toBe(
+            BlockType.PARAGRAPH,
+        );
     });
 });
