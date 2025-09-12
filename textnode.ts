@@ -11,10 +11,15 @@ export class TextNode {
   constructor(
     public text: string,
     public textType: TextType,
-    public url: string | undefined = undefined
+    public url: string | undefined = undefined,
   ) {
-    if (!!this.url !== (this.textType === TextType.LINK || this.textType === TextType.IMAGE)) {
-      throw new Error("URL must be provided if and only if textType is LINK or IMAGE");
+    if (
+      !!this.url !==
+      (this.textType === TextType.LINK || this.textType === TextType.IMAGE)
+    ) {
+      throw new Error(
+        "URL must be provided if and only if textType is LINK or IMAGE",
+      );
     }
     if (!Object.values(TextType).includes(this.textType)) {
       throw new Error("textType is not included in the TextType enum");

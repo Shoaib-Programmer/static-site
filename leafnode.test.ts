@@ -20,8 +20,13 @@ describe("LeafNode", () => {
   });
 
   test("renders tag with props and closes correctly", () => {
-    const node = new LeafNode("a", "Click me", { href: "https://ex.com", rel: "noopener" });
-    expect(node.toHTML()).toBe("<a href=https://ex.com rel=noopener >Click me</a>");
+    const node = new LeafNode("a", "Click me", {
+      href: "https://ex.com",
+      rel: "noopener",
+    });
+    expect(node.toHTML()).toBe(
+      "<a href=https://ex.com rel=noopener >Click me</a>",
+    );
   });
 
   test("renders tag without props (no extra space before closing angle)", () => {

@@ -3,9 +3,9 @@ export class HTMLNode {
     public tag: string | undefined = undefined,
     public value: string | undefined = undefined,
     public children: HTMLNode[] | undefined = undefined,
-    public props: Record<string, string> | undefined = undefined
+    public props: Record<string, string> | undefined = undefined,
   ) {
-    if (!!this.tag !== (!!this.props)) {
+    if (!!this.tag !== !!this.props) {
       throw new Error("tag and props must be used together");
     }
   }

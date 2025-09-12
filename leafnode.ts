@@ -4,7 +4,7 @@ export class LeafNode extends HTMLNode {
   constructor(
     public tag: string | undefined,
     public value: string,
-    public props: Record<string, string> | undefined
+    public props: Record<string, string> | undefined,
   ) {
     super(tag, value, undefined, props);
   }
@@ -18,6 +18,6 @@ export class LeafNode extends HTMLNode {
       return this.value;
     }
 
-    return `<${this.tag} ${super.propsToHTML()}>${this.value}</${this.tag}>`
+    return `<${this.tag} ${super.propsToHTML()}>${this.value}</${this.tag}>`;
   }
 }

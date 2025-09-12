@@ -28,7 +28,7 @@ export const textNodeToHTMLNode = (textNode: TextNode) => {
 export const splitNodesDelimiter = (
   oldNodes: TextNode[],
   delimiter: string,
-  textType: TextType
+  textType: TextType,
 ): TextNode[] => {
   const nodes: TextNode[] = [];
 
@@ -42,12 +42,12 @@ export const splitNodesDelimiter = (
     // Escape delimiter for regex if needed
     const escapedDelimiter = delimiter.replace(
       /[-\/\\^$*+?.()|[\]{}]/g,
-      "\\$&"
+      "\\$&",
     );
     // Match: delimiter (not empty) delimiter, non-greedy
     const regex = new RegExp(
       `${escapedDelimiter}([^${escapedDelimiter}]+?)${escapedDelimiter}`,
-      "g"
+      "g",
     );
 
     let lastIndex = 0;
@@ -79,11 +79,76 @@ export const splitNodesDelimiter = (
 };
 
 export const splitNodesImage = (node: TextNode) => {
-  return splitNodesDelimiter([node], "!", TextType.IMAGE);
+  if (node.textType !== TextType.TEXT) {
+    return [node];
+  }
+  const text = node.text;
+  const regex = /!\[([^\]]*)\]\(((?:[^()]+|\([^()]*\))+?)\)/g;
+  const resultNodes: TextNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      const before = text.slice(lastIndex, match.index);
+      if (before.length > 0) {
+        resultNodes.push(new TextNode(before, TextType.TEXT));
+      }
+    }
+    const alt = match[1] as string;
+    const url = match[2] as string;
+    resultNodes.push(new TextNode(alt, TextType.IMAGE, url));
+    lastIndex = regex.lastIndex;
+  }
+  if (lastIndex < text.length) {
+    const after = text.slice(lastIndex);
+    if (after.length > 0) {
+      resultNodes.push(new TextNode(after, TextType.TEXT));
+    }
+  }
+  if (resultNodes.length === 0) {
+    return [node];
+  }
+  return resultNodes;
 };
 
 export const splitNodesLink = (node: TextNode) => {
-  return splitNodesDelimiter([node], "[", TextType.LINK);
+  if (node.textType !== TextType.TEXT) {
+    return [node];
+  }
+  const text = node.text;
+  // Support parentheses in URL; exclude images by manually checking preceding '!'
+  const linkRegex = /\[([^\]]+)\]\(((?:[^()]+|\([^()]*\))+?)\)/g;
+  const resultNodes: TextNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  while ((match = linkRegex.exec(text)) !== null) {
+    // Exclude if this is actually an image (preceded by '!')
+    const start = match.index;
+    const isImage = start > 0 && text[start - 1] === "!";
+    if (isImage) {
+      continue;
+    }
+    if (start > lastIndex) {
+      const before = text.slice(lastIndex, start);
+      if (before.length > 0) {
+        resultNodes.push(new TextNode(before, TextType.TEXT));
+      }
+    }
+    const label = match[1] as string;
+    const url = match[2] as string;
+    resultNodes.push(new TextNode(label, TextType.LINK, url));
+    lastIndex = linkRegex.lastIndex;
+  }
+  if (lastIndex < text.length) {
+    const after = text.slice(lastIndex);
+    if (after.length > 0) {
+      resultNodes.push(new TextNode(after, TextType.TEXT));
+    }
+  }
+  if (resultNodes.length === 0) {
+    return [node];
+  }
+  return resultNodes;
 };
 
 export const extractMarkdownImages = (text: string): [string, string][] => {

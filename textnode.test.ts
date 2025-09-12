@@ -11,10 +11,10 @@ describe("TextNode", () => {
     const node = new TextNode(
       "Personal website",
       TextType.LINK,
-      "https://portfolio-seven-gamma-97.vercel.app"
+      "https://portfolio-seven-gamma-97.vercel.app",
     );
     expect(node.toString()).toBe(
-      "TextNode(Personal website, link, https://portfolio-seven-gamma-97.vercel.app)"
+      "TextNode(Personal website, link, https://portfolio-seven-gamma-97.vercel.app)",
     );
   });
   test("Edge case: throws if LINK type without URL", () => {
