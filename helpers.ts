@@ -25,6 +25,19 @@ export const textNodeToHTMLNode = (textNode: TextNode) => {
   }
 };
 
+export const textToTextNodes = (text: string): TextNode[] => {
+  const initialNode = new TextNode(text, TextType.TEXT);
+  let nodes: TextNode[] = [initialNode];
+
+  nodes = splitNodesDelimiter(nodes, "**", TextType.BOLD);
+  nodes = splitNodesDelimiter(nodes, "_", TextType.ITALIC);
+  nodes = splitNodesDelimiter(nodes, "`", TextType.CODE);
+  nodes = splitNodesLink(nodes);
+  nodes = splitNodesImage(nodes);
+
+  return nodes;
+};
+
 export const splitNodesDelimiter = (
   oldNodes: TextNode[],
   delimiter: string,
@@ -78,76 +91,86 @@ export const splitNodesDelimiter = (
   return nodes;
 };
 
-export const splitNodesImage = (node: TextNode) => {
-  if (node.textType !== TextType.TEXT) {
-    return [node];
-  }
-  const text = node.text;
-  const regex = /!\[([^\]]*)\]\(((?:[^()]+|\([^()]*\))+?)\)/g;
+export const splitNodesImage = (nodes: TextNode[]) => {
   const resultNodes: TextNode[] = [];
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
-  while ((match = regex.exec(text)) !== null) {
-    if (match.index > lastIndex) {
-      const before = text.slice(lastIndex, match.index);
-      if (before.length > 0) {
-        resultNodes.push(new TextNode(before, TextType.TEXT));
+
+  for (const node of nodes) {
+    if (node.textType !== TextType.TEXT) {
+      resultNodes.push(node);
+      continue;
+    }
+
+    const text = node.text;
+    const regex = /!\[([^\]]*)\]\(((?:[^()]+|\([^()]*\))+?)\)/g;
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = regex.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        const before = text.slice(lastIndex, match.index);
+        if (before.length > 0) {
+          resultNodes.push(new TextNode(before, TextType.TEXT));
+        }
+      }
+      const alt = match[1] as string;
+      const url = match[2] as string;
+      resultNodes.push(new TextNode(alt, TextType.IMAGE, url));
+      lastIndex = regex.lastIndex;
+    }
+
+    if (lastIndex < text.length) {
+      const after = text.slice(lastIndex);
+      if (after.length > 0) {
+        resultNodes.push(new TextNode(after, TextType.TEXT));
       }
     }
-    const alt = match[1] as string;
-    const url = match[2] as string;
-    resultNodes.push(new TextNode(alt, TextType.IMAGE, url));
-    lastIndex = regex.lastIndex;
   }
-  if (lastIndex < text.length) {
-    const after = text.slice(lastIndex);
-    if (after.length > 0) {
-      resultNodes.push(new TextNode(after, TextType.TEXT));
-    }
-  }
-  if (resultNodes.length === 0) {
-    return [node];
-  }
+
   return resultNodes;
 };
 
-export const splitNodesLink = (node: TextNode) => {
-  if (node.textType !== TextType.TEXT) {
-    return [node];
-  }
-  const text = node.text;
-  // Support parentheses in URL; exclude images by manually checking preceding '!'
-  const linkRegex = /\[([^\]]+)\]\(((?:[^()]+|\([^()]*\))+?)\)/g;
+export const splitNodesLink = (nodes: TextNode[]) => {
   const resultNodes: TextNode[] = [];
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
-  while ((match = linkRegex.exec(text)) !== null) {
-    // Exclude if this is actually an image (preceded by '!')
-    const start = match.index;
-    const isImage = start > 0 && text[start - 1] === "!";
-    if (isImage) {
+
+  for (const node of nodes) {
+    if (node.textType !== TextType.TEXT) {
+      resultNodes.push(node);
       continue;
     }
-    if (start > lastIndex) {
-      const before = text.slice(lastIndex, start);
-      if (before.length > 0) {
-        resultNodes.push(new TextNode(before, TextType.TEXT));
+
+    const text = node.text;
+    // Support parentheses in URL; exclude images by manually checking preceding '!'
+    const linkRegex = /\[([^\]]+)\]\(((?:[^()]+|\([^()]*\))+?)\)/g;
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = linkRegex.exec(text)) !== null) {
+      // Exclude if this is actually an image (preceded by '!')
+      const start = match.index;
+      const isImage = start > 0 && text[start - 1] === "!";
+      if (isImage) {
+        continue;
+      }
+      if (start > lastIndex) {
+        const before = text.slice(lastIndex, start);
+        if (before.length > 0) {
+          resultNodes.push(new TextNode(before, TextType.TEXT));
+        }
+      }
+      const label = match[1] as string;
+      const url = match[2] as string;
+      resultNodes.push(new TextNode(label, TextType.LINK, url));
+      lastIndex = linkRegex.lastIndex;
+    }
+
+    if (lastIndex < text.length) {
+      const after = text.slice(lastIndex);
+      if (after.length > 0) {
+        resultNodes.push(new TextNode(after, TextType.TEXT));
       }
     }
-    const label = match[1] as string;
-    const url = match[2] as string;
-    resultNodes.push(new TextNode(label, TextType.LINK, url));
-    lastIndex = linkRegex.lastIndex;
   }
-  if (lastIndex < text.length) {
-    const after = text.slice(lastIndex);
-    if (after.length > 0) {
-      resultNodes.push(new TextNode(after, TextType.TEXT));
-    }
-  }
-  if (resultNodes.length === 0) {
-    return [node];
-  }
+
   return resultNodes;
 };
 

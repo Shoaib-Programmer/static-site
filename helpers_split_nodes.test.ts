@@ -11,7 +11,7 @@ describe("splitNodesImage", () => {
       "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
       TextType.TEXT,
     );
-    const out = splitNodesImage(node);
+    const out = splitNodesImage([node]);
     expect(toTuples(out)).toEqual([
       ["This is text with an ", TextType.TEXT, undefined],
       ["image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"],
@@ -22,7 +22,7 @@ describe("splitNodesImage", () => {
 
   test("no images returns original node", () => {
     const node = new TextNode("no images here", TextType.TEXT);
-    expect(toTuples(splitNodesImage(node))).toEqual([
+    expect(toTuples(splitNodesImage([node]))).toEqual([
       ["no images here", TextType.TEXT, undefined],
     ]);
   });
@@ -32,7 +32,7 @@ describe("splitNodesImage", () => {
       "start ![](http://a.com/x.png) end",
       TextType.TEXT,
     );
-    const out = splitNodesImage(node);
+    const out = splitNodesImage([node]);
     expect(toTuples(out)).toEqual([
       ["start ", TextType.TEXT, undefined],
       ["", TextType.IMAGE, "http://a.com/x.png"],
@@ -45,7 +45,7 @@ describe("splitNodesImage", () => {
       "![pic](https://ex.com/image_(final).png)",
       TextType.TEXT,
     );
-    const out = splitNodesImage(node);
+    const out = splitNodesImage([node]);
     expect(toTuples(out)).toEqual([
       ["pic", TextType.IMAGE, "https://ex.com/image_(final).png"],
     ]);
@@ -53,7 +53,7 @@ describe("splitNodesImage", () => {
 
   test("non-TEXT node is returned as-is", () => {
     const node = new TextNode("already image", TextType.IMAGE, "http://x");
-    expect(toTuples(splitNodesImage(node))).toEqual([
+    expect(toTuples(splitNodesImage([node]))).toEqual([
       ["already image", TextType.IMAGE, "http://x"],
     ]);
   });
@@ -65,7 +65,7 @@ describe("splitNodesLink", () => {
       "Click [one](http://a) then [two](http://b) and [three](http://c)",
       TextType.TEXT,
     );
-    const out = splitNodesLink(node);
+    const out = splitNodesLink([node]);
     expect(toTuples(out)).toEqual([
       ["Click ", TextType.TEXT, undefined],
       ["one", TextType.LINK, "http://a"],
@@ -81,7 +81,7 @@ describe("splitNodesLink", () => {
       "![img](http://x/y.png) [ok](http://x)",
       TextType.TEXT,
     );
-    const out = splitNodesLink(node);
+    const out = splitNodesLink([node]);
     expect(toTuples(out)).toEqual([
       ["![img](http://x/y.png) ", TextType.TEXT, undefined],
       ["ok", TextType.LINK, "http://x"],
@@ -93,7 +93,7 @@ describe("splitNodesLink", () => {
       "Go [file](https://ex.com/file_(1).zip)",
       TextType.TEXT,
     );
-    const out = splitNodesLink(node);
+    const out = splitNodesLink([node]);
     expect(toTuples(out)).toEqual([
       ["Go ", TextType.TEXT, undefined],
       ["file", TextType.LINK, "https://ex.com/file_(1).zip"],
@@ -102,14 +102,14 @@ describe("splitNodesLink", () => {
 
   test("no links returns original node", () => {
     const node = new TextNode("no links here", TextType.TEXT);
-    expect(toTuples(splitNodesLink(node))).toEqual([
+    expect(toTuples(splitNodesLink([node]))).toEqual([
       ["no links here", TextType.TEXT, undefined],
     ]);
   });
 
   test("non-TEXT node is returned as-is", () => {
     const node = new TextNode("already link", TextType.LINK, "http://x");
-    expect(toTuples(splitNodesLink(node))).toEqual([
+    expect(toTuples(splitNodesLink([node]))).toEqual([
       ["already link", TextType.LINK, "http://x"],
     ]);
   });
