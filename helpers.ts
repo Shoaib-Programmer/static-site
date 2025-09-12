@@ -2,194 +2,196 @@ import { LeafNode } from "./leafnode";
 import { TextType, TextNode } from "./textnode";
 
 export const textNodeToHTMLNode = (textNode: TextNode) => {
-  if (!Object.values(TextType).includes(textNode.textType)) {
-    throw new Error("textType is not included in the TextType enum");
-  }
+    if (!Object.values(TextType).includes(textNode.textType)) {
+        throw new Error("textType is not included in the TextType enum");
+    }
 
-  switch (textNode.textType) {
-    case TextType.TEXT:
-      return new LeafNode(undefined, textNode.text, undefined);
-    case TextType.BOLD:
-      return new LeafNode("b", textNode.text, {});
-    case TextType.ITALIC:
-      return new LeafNode("i", textNode.text, {});
-    case TextType.CODE:
-      return new LeafNode("code", textNode.text, {});
-    case TextType.LINK:
-      return new LeafNode("a", textNode.text, { href: textNode.url as string });
-    case TextType.IMAGE:
-      return new LeafNode("img", "", {
-        src: textNode.url as string,
-        alt: textNode.text as string,
-      });
-  }
+    switch (textNode.textType) {
+        case TextType.TEXT:
+            return new LeafNode(undefined, textNode.text, undefined);
+        case TextType.BOLD:
+            return new LeafNode("b", textNode.text, {});
+        case TextType.ITALIC:
+            return new LeafNode("i", textNode.text, {});
+        case TextType.CODE:
+            return new LeafNode("code", textNode.text, {});
+        case TextType.LINK:
+            return new LeafNode("a", textNode.text, {
+                href: textNode.url as string,
+            });
+        case TextType.IMAGE:
+            return new LeafNode("img", "", {
+                src: textNode.url as string,
+                alt: textNode.text as string,
+            });
+    }
 };
 
 export const textToTextNodes = (text: string): TextNode[] => {
-  const initialNode = new TextNode(text, TextType.TEXT);
-  let nodes: TextNode[] = [initialNode];
+    const initialNode = new TextNode(text, TextType.TEXT);
+    let nodes: TextNode[] = [initialNode];
 
-  nodes = splitNodesDelimiter(nodes, "**", TextType.BOLD);
-  nodes = splitNodesDelimiter(nodes, "_", TextType.ITALIC);
-  nodes = splitNodesDelimiter(nodes, "`", TextType.CODE);
-  nodes = splitNodesLink(nodes);
-  nodes = splitNodesImage(nodes);
+    nodes = splitNodesDelimiter(nodes, "**", TextType.BOLD);
+    nodes = splitNodesDelimiter(nodes, "_", TextType.ITALIC);
+    nodes = splitNodesDelimiter(nodes, "`", TextType.CODE);
+    nodes = splitNodesLink(nodes);
+    nodes = splitNodesImage(nodes);
 
-  return nodes;
+    return nodes;
 };
 
 export const splitNodesDelimiter = (
-  oldNodes: TextNode[],
-  delimiter: string,
-  textType: TextType,
+    oldNodes: TextNode[],
+    delimiter: string,
+    textType: TextType,
 ): TextNode[] => {
-  const nodes: TextNode[] = [];
+    const nodes: TextNode[] = [];
 
-  for (const node of oldNodes) {
-    // Only split nodes of type TEXT; leave others untouched
-    if (node.textType !== TextType.TEXT) {
-      nodes.push(node);
-      continue;
-    }
-
-    // Escape delimiter for regex if needed
-    const escapedDelimiter = delimiter.replace(
-      /[-\/\\^$*+?.()|[\]{}]/g,
-      "\\$&",
-    );
-    // Match: delimiter (not empty) delimiter, non-greedy
-    const regex = new RegExp(
-      `${escapedDelimiter}([^${escapedDelimiter}]+?)${escapedDelimiter}`,
-      "g",
-    );
-
-    let lastIndex = 0;
-    let match: RegExpExecArray | null;
-
-    while ((match = regex.exec(node.text)) !== null) {
-      // Add text before the delimiter
-      if (match.index > lastIndex) {
-        const before = node.text.slice(lastIndex, match.index);
-        if (before.length > 0) {
-          nodes.push(new TextNode(before, TextType.TEXT));
+    for (const node of oldNodes) {
+        // Only split nodes of type TEXT; leave others untouched
+        if (node.textType !== TextType.TEXT) {
+            nodes.push(node);
+            continue;
         }
-      }
-      // Add the delimited text
-      nodes.push(new TextNode(match[1] as string, textType));
-      lastIndex = regex.lastIndex;
+
+        // Escape delimiter for regex if needed
+        const escapedDelimiter = delimiter.replace(
+            /[-\/\\^$*+?.()|[\]{}]/g,
+            "\\$&",
+        );
+        // Match: delimiter (not empty) delimiter, non-greedy
+        const regex = new RegExp(
+            `${escapedDelimiter}([^${escapedDelimiter}]+?)${escapedDelimiter}`,
+            "g",
+        );
+
+        let lastIndex = 0;
+        let match: RegExpExecArray | null;
+
+        while ((match = regex.exec(node.text)) !== null) {
+            // Add text before the delimiter
+            if (match.index > lastIndex) {
+                const before = node.text.slice(lastIndex, match.index);
+                if (before.length > 0) {
+                    nodes.push(new TextNode(before, TextType.TEXT));
+                }
+            }
+            // Add the delimited text
+            nodes.push(new TextNode(match[1] as string, textType));
+            lastIndex = regex.lastIndex;
+        }
+
+        // Add any remaining text after the last delimiter
+        if (lastIndex < node.text.length) {
+            const after = node.text.slice(lastIndex);
+            if (after.length > 0) {
+                nodes.push(new TextNode(after, TextType.TEXT));
+            }
+        }
     }
 
-    // Add any remaining text after the last delimiter
-    if (lastIndex < node.text.length) {
-      const after = node.text.slice(lastIndex);
-      if (after.length > 0) {
-        nodes.push(new TextNode(after, TextType.TEXT));
-      }
-    }
-  }
-
-  return nodes;
+    return nodes;
 };
 
 export const splitNodesImage = (nodes: TextNode[]) => {
-  const resultNodes: TextNode[] = [];
+    const resultNodes: TextNode[] = [];
 
-  for (const node of nodes) {
-    if (node.textType !== TextType.TEXT) {
-      resultNodes.push(node);
-      continue;
-    }
-
-    const text = node.text;
-    const regex = /!\[([^\]]*)\]\(((?:[^()]+|\([^()]*\))+?)\)/g;
-    let lastIndex = 0;
-    let match: RegExpExecArray | null;
-
-    while ((match = regex.exec(text)) !== null) {
-      if (match.index > lastIndex) {
-        const before = text.slice(lastIndex, match.index);
-        if (before.length > 0) {
-          resultNodes.push(new TextNode(before, TextType.TEXT));
+    for (const node of nodes) {
+        if (node.textType !== TextType.TEXT) {
+            resultNodes.push(node);
+            continue;
         }
-      }
-      const alt = match[1] as string;
-      const url = match[2] as string;
-      resultNodes.push(new TextNode(alt, TextType.IMAGE, url));
-      lastIndex = regex.lastIndex;
+
+        const text = node.text;
+        const regex = /!\[([^\]]*)\]\(((?:[^()]+|\([^()]*\))+?)\)/g;
+        let lastIndex = 0;
+        let match: RegExpExecArray | null;
+
+        while ((match = regex.exec(text)) !== null) {
+            if (match.index > lastIndex) {
+                const before = text.slice(lastIndex, match.index);
+                if (before.length > 0) {
+                    resultNodes.push(new TextNode(before, TextType.TEXT));
+                }
+            }
+            const alt = match[1] as string;
+            const url = match[2] as string;
+            resultNodes.push(new TextNode(alt, TextType.IMAGE, url));
+            lastIndex = regex.lastIndex;
+        }
+
+        if (lastIndex < text.length) {
+            const after = text.slice(lastIndex);
+            if (after.length > 0) {
+                resultNodes.push(new TextNode(after, TextType.TEXT));
+            }
+        }
     }
 
-    if (lastIndex < text.length) {
-      const after = text.slice(lastIndex);
-      if (after.length > 0) {
-        resultNodes.push(new TextNode(after, TextType.TEXT));
-      }
-    }
-  }
-
-  return resultNodes;
+    return resultNodes;
 };
 
 export const splitNodesLink = (nodes: TextNode[]) => {
-  const resultNodes: TextNode[] = [];
+    const resultNodes: TextNode[] = [];
 
-  for (const node of nodes) {
-    if (node.textType !== TextType.TEXT) {
-      resultNodes.push(node);
-      continue;
-    }
-
-    const text = node.text;
-    // Support parentheses in URL; exclude images by manually checking preceding '!'
-    const linkRegex = /\[([^\]]+)\]\(((?:[^()]+|\([^()]*\))+?)\)/g;
-    let lastIndex = 0;
-    let match: RegExpExecArray | null;
-
-    while ((match = linkRegex.exec(text)) !== null) {
-      // Exclude if this is actually an image (preceded by '!')
-      const start = match.index;
-      const isImage = start > 0 && text[start - 1] === "!";
-      if (isImage) {
-        continue;
-      }
-      if (start > lastIndex) {
-        const before = text.slice(lastIndex, start);
-        if (before.length > 0) {
-          resultNodes.push(new TextNode(before, TextType.TEXT));
+    for (const node of nodes) {
+        if (node.textType !== TextType.TEXT) {
+            resultNodes.push(node);
+            continue;
         }
-      }
-      const label = match[1] as string;
-      const url = match[2] as string;
-      resultNodes.push(new TextNode(label, TextType.LINK, url));
-      lastIndex = linkRegex.lastIndex;
+
+        const text = node.text;
+        // Support parentheses in URL; exclude images by manually checking preceding '!'
+        const linkRegex = /\[([^\]]+)\]\(((?:[^()]+|\([^()]*\))+?)\)/g;
+        let lastIndex = 0;
+        let match: RegExpExecArray | null;
+
+        while ((match = linkRegex.exec(text)) !== null) {
+            // Exclude if this is actually an image (preceded by '!')
+            const start = match.index;
+            const isImage = start > 0 && text[start - 1] === "!";
+            if (isImage) {
+                continue;
+            }
+            if (start > lastIndex) {
+                const before = text.slice(lastIndex, start);
+                if (before.length > 0) {
+                    resultNodes.push(new TextNode(before, TextType.TEXT));
+                }
+            }
+            const label = match[1] as string;
+            const url = match[2] as string;
+            resultNodes.push(new TextNode(label, TextType.LINK, url));
+            lastIndex = linkRegex.lastIndex;
+        }
+
+        if (lastIndex < text.length) {
+            const after = text.slice(lastIndex);
+            if (after.length > 0) {
+                resultNodes.push(new TextNode(after, TextType.TEXT));
+            }
+        }
     }
 
-    if (lastIndex < text.length) {
-      const after = text.slice(lastIndex);
-      if (after.length > 0) {
-        resultNodes.push(new TextNode(after, TextType.TEXT));
-      }
-    }
-  }
-
-  return resultNodes;
+    return resultNodes;
 };
 
 export const extractMarkdownImages = (text: string): [string, string][] => {
-  const regex = /!\[([^\]]*)\]\(((?:[^()]+|\([^()]*\))+?)\)/g;
-  const results: [string, string][] = [];
-  let match: RegExpExecArray | null;
-  while ((match = regex.exec(text)) !== null) {
-    results.push([match[1] as string, match[2] as string]);
-  }
-  return results;
+    const regex = /!\[([^\]]*)\]\(((?:[^()]+|\([^()]*\))+?)\)/g;
+    const results: [string, string][] = [];
+    let match: RegExpExecArray | null;
+    while ((match = regex.exec(text)) !== null) {
+        results.push([match[1] as string, match[2] as string]);
+    }
+    return results;
 };
 
 export const extractMarkdownLinks = (text: string): [string, string][] => {
-  const regex = /(?<!!)\[([^\]]+)\]\(((?:[^()]+|\([^()]*\))+?)\)/g;
-  const results: [string, string][] = [];
-  let match: RegExpExecArray | null;
-  while ((match = regex.exec(text)) !== null) {
-    results.push([match[1] as string, match[2] as string]);
-  }
-  return results;
+    const regex = /(?<!!)\[([^\]]+)\]\(((?:[^()]+|\([^()]*\))+?)\)/g;
+    const results: [string, string][] = [];
+    let match: RegExpExecArray | null;
+    while ((match = regex.exec(text)) !== null) {
+        results.push([match[1] as string, match[2] as string]);
+    }
+    return results;
 };

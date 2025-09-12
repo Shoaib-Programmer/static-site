@@ -1,40 +1,41 @@
 export enum TextType {
-  TEXT = "text",
-  BOLD = "bold",
-  ITALIC = "italic",
-  CODE = "code",
-  LINK = "link",
-  IMAGE = "image",
+    TEXT = "text",
+    BOLD = "bold",
+    ITALIC = "italic",
+    CODE = "code",
+    LINK = "link",
+    IMAGE = "image",
 }
 
 export class TextNode {
-  constructor(
-    public text: string,
-    public textType: TextType,
-    public url: string | undefined = undefined,
-  ) {
-    if (
-      !!this.url !==
-      (this.textType === TextType.LINK || this.textType === TextType.IMAGE)
+    constructor(
+        public text: string,
+        public textType: TextType,
+        public url: string | undefined = undefined,
     ) {
-      throw new Error(
-        "URL must be provided if and only if textType is LINK or IMAGE",
-      );
+        if (
+            !!this.url !==
+            (this.textType === TextType.LINK ||
+                this.textType === TextType.IMAGE)
+        ) {
+            throw new Error(
+                "URL must be provided if and only if textType is LINK or IMAGE",
+            );
+        }
+        if (!Object.values(TextType).includes(this.textType)) {
+            throw new Error("textType is not included in the TextType enum");
+        }
     }
-    if (!Object.values(TextType).includes(this.textType)) {
-      throw new Error("textType is not included in the TextType enum");
+
+    public equals(other: TextNode) {
+        return (
+            this.text === other.text &&
+            this.textType === other.textType &&
+            this.url === other.url
+        );
     }
-  }
 
-  public equals(other: TextNode) {
-    return (
-      this.text === other.text &&
-      this.textType === other.textType &&
-      this.url === other.url
-    );
-  }
-
-  public toString(): string {
-    return `TextNode(${this.text}, ${this.textType}, ${this.url})`;
-  }
+    public toString(): string {
+        return `TextNode(${this.text}, ${this.textType}, ${this.url})`;
+    }
 }
