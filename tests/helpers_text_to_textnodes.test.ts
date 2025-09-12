@@ -1,6 +1,6 @@
 import { expect, test, describe } from "bun:test";
-import { TextNode, TextType } from "./textnode";
-import { textToTextNodes } from "./helpers";
+import { TextNode, TextType } from "../textnode";
+import { textToTextNodes } from "../helpers";
 
 const toTuples = (nodes: TextNode[]) =>
     nodes.map((n) => [n.text, n.textType, n.url]);

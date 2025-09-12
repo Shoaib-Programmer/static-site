@@ -1,5 +1,5 @@
 import { expect, test, describe } from "bun:test";
-import { extractMarkdownImages, extractMarkdownLinks } from "./helpers";
+import { extractMarkdownImages, extractMarkdownLinks } from "../helpers";
 
 describe("helpers: extractMarkdownImages", () => {
     test("finds a single markdown image with alt text", () => {

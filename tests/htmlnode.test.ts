@@ -1,5 +1,5 @@
 import { expect, test, describe } from "bun:test";
-import { HTMLNode } from "./htmlnode";
+import { HTMLNode } from "../htmlnode";
 
 describe("HTMLNode", () => {
     test("propsToHTML formats props into HTML attribute string with trailing space", () => {

@@ -1,6 +1,6 @@
 import { expect, test, describe } from "bun:test";
-import { ParentNode } from "./parentnode";
-import { LeafNode } from "./leafnode";
+import { ParentNode } from "../parentnode";
+import { LeafNode } from "../leafnode";
 
 describe("ParentNode", () => {
     test("toHTML with single child", () => {

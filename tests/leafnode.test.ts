@@ -1,9 +1,8 @@
 import { expect, test, describe } from "bun:test";
-import { LeafNode } from "./leafnode";
+import { LeafNode } from "../leafnode";
 
 describe("LeafNode", () => {
     test("renders plain value when tag is falsy (and no props)", () => {
-        // @ts-expect-error testing undefined tag path by forcing through the type
         const node = new LeafNode(undefined, "hello", undefined);
         expect(node.toHTML()).toBe("hello");
     });

@@ -1,5 +1,5 @@
 import { expect, test, describe } from "bun:test";
-import { markdownToBlocks } from "./block";
+import { markdownToBlocks } from "../block";
 
 describe("markdownToBlocks", () => {
     test("splits paragraphs and list blocks per assignment example", () => {

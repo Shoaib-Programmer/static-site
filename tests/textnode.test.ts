@@ -1,5 +1,5 @@
 import { expect, test, describe } from "bun:test";
-import { TextNode, TextType } from "./textnode";
+import { TextNode, TextType } from "../textnode";
 
 describe("TextNode", () => {
     test("equals should confirm two Nodes equal when they are the same", () => {
