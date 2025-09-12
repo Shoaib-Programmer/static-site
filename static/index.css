@@ -1,3 +1,10 @@
+@font-face {
+  font-family: 'Luminari';
+  src: url('/fonts/Luminari.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 body {
   background-color: #1f1c25;
   color: #f0e6d1;

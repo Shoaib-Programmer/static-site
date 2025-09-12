@@ -9,7 +9,7 @@ export const generatePage = (
     dstPath: PathLike,
 ) => {
     console.log(
-        `Generating page from ${fromPath} to ${dstPath} using ${templatePath}`,
+        `Generating page from ${fromPath} to ${dstPath} using ${templatePath}...`,
     );
 
     // Load data
@@ -28,6 +28,8 @@ export const generatePage = (
     const dir = path.dirname(dstPath.toString());
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(dstPath, html);
+
+    console.log("Done.");
 };
 
 // TODO: Watchout for errors from this function

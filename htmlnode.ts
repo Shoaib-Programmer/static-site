@@ -18,10 +18,10 @@ export class HTMLNode {
         let ret = "";
         if (this.props) {
             Object.entries(this.props).forEach(([key, value]) => {
-                ret += `${key}=${value}` + " ";
+                ret += `${key}="${value}" `;
             });
         }
-        return ret;
+        return ret.trim();
     }
     public toString(): string {
         return `HTMLNode(${this?.tag}, ${this?.value}, ${this?.children}, ${this?.props})`;
