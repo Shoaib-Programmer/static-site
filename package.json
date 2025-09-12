@@ -6,10 +6,16 @@
     "scripts": {
         "start": "bun run index.ts",
         "dev": "bun run --watch index.ts",
-        "format": "bun run prettier --write ."
+        "format": "bun run prettier --write .",
+        "lint": "eslint . --ext .ts",
+        "lint:fix": "eslint . --ext .ts --fix"
     },
     "devDependencies": {
-        "@types/bun": "latest"
+        "@types/bun": "latest",
+        "@typescript-eslint/eslint-plugin": "^8.43.0",
+        "@typescript-eslint/parser": "^8.43.0",
+        "eslint": "^9.35.0",
+        "prettier": "^3.5.3"
     },
     "peerDependencies": {
         "typescript": "^5"
