@@ -78,6 +78,14 @@ export const splitNodesDelimiter = (
   return nodes;
 };
 
+export const splitNodesImage = (node: TextNode) => {
+  return splitNodesDelimiter([node], "!", TextType.IMAGE);
+};
+
+export const splitNodesLink = (node: TextNode) => {
+  return splitNodesDelimiter([node], "[", TextType.LINK);
+};
+
 export const extractMarkdownImages = (text: string): [string, string][] => {
   const regex = /!\[([^\]]*)\]\(((?:[^()]+|\([^()]*\))+?)\)/g;
   const results: [string, string][] = [];
