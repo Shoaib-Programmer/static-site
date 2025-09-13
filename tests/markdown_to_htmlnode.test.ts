@@ -49,10 +49,10 @@ describe("markdownToHTMLNode", () => {
     });
 
     test("renders code block without inline parsing", () => {
-        const md = "```js\nconst msg = \"**not bold**\";\n```";
+        const md = '```js\nconst msg = "**not bold**";\n```';
         const root = markdownToHTMLNode(md);
         expect(root.toHTML()).toBe(
-            "<div ><pre ><code >const msg = \"**not bold**\";</code></pre></div>",
+            '<div ><pre ><code >const msg = "**not bold**";</code></pre></div>',
         );
     });
 
@@ -68,5 +68,3 @@ describe("markdownToHTMLNode", () => {
         );
     });
 });
-
-

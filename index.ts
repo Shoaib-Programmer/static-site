@@ -11,7 +11,12 @@ import { join } from "path";
 
 function main(): void {
     loadStatic();
-    generatePagesRecursive("content", "template.html", "public");
+    generatePagesRecursive(
+        "content",
+        "template.html",
+        "public",
+        "/static-site/",
+    );
 }
 
 const loadStatic = (): void => {
@@ -40,7 +45,7 @@ const copyDir = (src: string, dst: string) => {
             copyFileSync(srcPath, dstPath);
         }
     }
-}
+};
 
 if (import.meta.main) {
     main();

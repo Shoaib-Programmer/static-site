@@ -7,13 +7,14 @@ export const generatePagesRecursive = (
     contentDirPath: PathLike,
     templatePath: PathLike,
     dstDirPath: PathLike,
+    basePath: PathLike,
 ) => {
     const entries = getEntries(contentDirPath);
     for (const entry of entries) {
         let destination =
             dstDirPath + entry.replace(contentDirPath as string, "");
         destination = destination.replace(".md", ".html");
-        generatePage(entry, templatePath, destination);
+        generatePage(entry, templatePath, destination, basePath);
     }
 };
 
@@ -21,6 +22,7 @@ const generatePage = (
     fromPath: PathLike,
     templatePath: PathLike,
     dstPath: PathLike,
+    basePath: PathLike,
 ) => {
     console.log(
         `Generating page from ${fromPath} to ${dstPath} using ${templatePath}...`,
@@ -37,6 +39,10 @@ const generatePage = (
     // Inject the content
     let html = template.replace(/{{ Title }}/g, title);
     html = html.replace(/{{ Content }}/g, content);
+
+    // Adapt to handle subdirectory paths
+    html = html.replace(/href="\//, `href="${basePath}`);
+    html = html.replace(/src="\//, `src="${basePath}`);
 
     // Ensure directory exists before writing to it
     const dir = path.dirname(dstPath.toString());

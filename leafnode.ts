@@ -11,8 +11,8 @@ export class LeafNode extends HTMLNode {
 
     public toHTML() {
         // For self-closing tags like img, empty value is allowed
-        const selfClosingTags = ['img', 'br', 'hr', 'input', 'meta', 'link'];
-        
+        const selfClosingTags = ["img", "br", "hr", "input", "meta", "link"];
+
         if (!this.value && (!this.tag || !selfClosingTags.includes(this.tag))) {
             throw new Error("Value must be present for a LeafNode");
         }
