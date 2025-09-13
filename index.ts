@@ -6,12 +6,12 @@ import {
     readdirSync,
     statSync,
 } from "fs";
-import { generatePage } from "./page";
+import { generatePagesRecursive } from "./page";
 import { join } from "path";
 
 function main(): void {
     loadStatic();
-    generatePage("content/index.md", "template.html", "public/index.html");
+    generatePagesRecursive("content", "template.html", "public");
 }
 
 const loadStatic = (): void => {
@@ -27,17 +27,17 @@ const loadStatic = (): void => {
     copyDir("./static/", "./public/");
 };
 
-function copyDir(src: string, dest: string) {
-    mkdirSync(dest, { recursive: true });
+const copyDir = (src: string, dst: string) => {
+    mkdirSync(dst, { recursive: true });
     for (const entry of readdirSync(src)) {
         const srcPath = join(src, entry);
-        const destPath = join(dest, entry);
+        const dstPath = join(dst, entry);
         const stat = statSync(srcPath);
 
         if (stat.isDirectory()) {
-            copyDir(srcPath, destPath);
+            copyDir(srcPath, dstPath);
         } else {
-            copyFileSync(srcPath, destPath);
+            copyFileSync(srcPath, dstPath);
         }
     }
 }

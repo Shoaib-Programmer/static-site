@@ -3,7 +3,21 @@ import type { PathLike } from "fs";
 import path from "path";
 import { markdownToHTMLNode } from "./html";
 
-export const generatePage = (
+export const generatePagesRecursive = (
+    contentDirPath: PathLike,
+    templatePath: PathLike,
+    dstDirPath: PathLike,
+) => {
+    const entries = getEntries(contentDirPath);
+    for (const entry of entries) {
+        let destination =
+            dstDirPath + entry.replace(contentDirPath as string, "");
+        destination = destination.replace(".md", ".html");
+        generatePage(entry, templatePath, destination);
+    }
+};
+
+const generatePage = (
     fromPath: PathLike,
     templatePath: PathLike,
     dstPath: PathLike,
@@ -32,7 +46,24 @@ export const generatePage = (
     console.log("Done.");
 };
 
-// TODO: Watchout for errors from this function
+const getEntries = (dir: PathLike, entries: string[] = []): string[] => {
+    if (!isDir(dir)) {
+        return entries;
+    }
+
+    const items = listDir(dir);
+
+    for (const item of items) {
+        if (isFile(item)) {
+            entries.push(item);
+        } else if (isDir(item)) {
+            getEntries(item, entries);
+        }
+    }
+
+    return entries;
+};
+
 const extractTitle = (text: string) => {
     const firstLine = text
         .split("\n")
@@ -44,4 +75,30 @@ const extractTitle = (text: string) => {
     }
 
     return firstLine.slice(2);
+};
+
+const isFile = (filePath: PathLike) => {
+    try {
+        return fs.statSync(filePath).isFile();
+    } catch {
+        return false;
+    }
+};
+
+const isDir = (dirPath: PathLike) => {
+    try {
+        return fs.statSync(dirPath).isDirectory();
+    } catch {
+        return false;
+    }
+};
+
+const listDir = (dirPath: PathLike) => {
+    try {
+        return fs
+            .readdirSync(dirPath)
+            .map((name) => path.join(dirPath as string, name));
+    } catch {
+        return [];
+    }
 };
